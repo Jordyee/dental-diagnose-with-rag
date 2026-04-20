@@ -4,7 +4,6 @@ venv/
 env/
 __pycache__/
 
-data/
-chroma_db_gigi/
+data/chroma_db_gigi/
 *.pdf
 *.zip
