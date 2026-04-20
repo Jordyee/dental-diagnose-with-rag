@@ -1,7 +1,11 @@
 langchain
 langchain-community
+langchain-chroma
 langchain-google-genai
+langchain-text-splitters
+langchain-core
 chromadb
 pypdf
+sentence-transformers
 gradio
 python-dotenv
