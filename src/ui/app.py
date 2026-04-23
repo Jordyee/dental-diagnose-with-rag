@@ -319,10 +319,11 @@ DISCLAIMER_HTML = """
 """
 
 EXAMPLE_QUERIES = [
-    ["What are the early signs of gum disease?",         []],
-    ["Explain the difference between gingivitis and periodontitis.", []],
-    ["How can I treat tooth sensitivity at home?",       []],
-    ["What causes tooth decay and how is it prevented?", []],
+    ["Apa saja ciri-ciri awal penyakit gusi?", []],
+    ["Bagaimana cara meredakan sakit gigi di rumah?", []],
+    ["Apa penyebab gigi sensitif dan cara mengatasinya?", []],
+    ["Jelaskan perbedaan karang gigi dan plak.", []],
+    ["Apakah aman melakukan pemutihan gigi sendiri?", []], # Tambahan baru
 ]
 
 
