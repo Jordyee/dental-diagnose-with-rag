@@ -1,9 +1,17 @@
+# Environment
 .env
 
+# Virtual environments
 venv/
 env/
-__pycache__/
+.venv/
 
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Generated vector database (rebuild with: python src/rag/ingest_data.py)
 data/chroma_db_gigi/
-*.pdf
+
+# Archives
 *.zip
