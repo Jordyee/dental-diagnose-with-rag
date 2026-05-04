@@ -192,7 +192,18 @@ def process_query(message: dict, history: list) -> str:
     # ── 4d. Call the LLM ──────────────────────────────────────────────────
     try:
         response = LLM.invoke([HumanMessage(content=content_parts)])
-        return response.content
+        
+        # Append RAG Sources to the response
+        final_answer = response.content
+        if "relevant_docs" in locals() and relevant_docs:
+            final_answer += "\n\n<details><summary>📚 Sources</summary>\n\n"
+            for i, doc in enumerate(relevant_docs):
+                # Clean up the page_content slightly for display
+                clean_text = doc.page_content.replace('\n', ' ').strip()
+                final_answer += f"**Source {i+1}**:\n> {clean_text}\n\n"
+            final_answer += "</details>"
+            
+        return final_answer
     except Exception as exc:
         traceback.print_exc()
         return (
@@ -445,6 +456,25 @@ body, .gradio-container {
     transform: translateY(-1px) !important;
 }
 
+/* ── Chat Actions ────────────────────────────────────────────────────── */
+.chat-actions {
+    background: var(--bg-secondary);
+    padding: 8px 16px 16px 16px; 
+    border-bottom-left-radius: var(--radius);
+    border-bottom-right-radius: var(--radius);
+}
+.action-btn {
+    background: var(--bg-tertiary) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text-secondary) !important;
+    font-size: 0.85rem !important;
+}
+.action-btn:hover {
+    background: var(--bg-hover) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-light) !important;
+}
+
 /* ── Capabilities list ───────────────────────────────────────────────── */
 .capability-tag {
     display: inline-block;
@@ -615,6 +645,30 @@ def _make_chip_handler(query_text):
     return handler
 
 
+def handle_like(data: gr.LikeData):
+    """Handle feedback on AI responses."""
+    print(f"[Feedback] {'👍' if data.liked else '👎'} on message: {data.value}")
+
+def export_chat(history):
+    """Export the chat history as a formatted TXT file."""
+    import tempfile
+    content = "Dental Health AI Assistant - Chat History\n"
+    content += "="*40 + "\n\n"
+    for msg in history:
+        role = "User" if msg["role"] == "user" else "Assistant"
+        text = msg["content"]
+        if isinstance(text, dict) and "path" in text:
+            text = f"[Image Attached: {text['path']}]"
+        elif isinstance(text, tuple):
+            text = f"[File Attached: {text[0]}]"
+        content += f"{role}:\n{text}\n\n"
+        content += "-"*40 + "\n\n"
+    
+    with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt", encoding="utf-8") as f:
+        f.write(content)
+        return gr.update(value=f.name, visible=True)
+
+
 # ── Build the UI ──────────────────────────────────────────────────────────────
 
 def build_ui() -> gr.Blocks:
@@ -646,6 +700,10 @@ def build_ui() -> gr.Blocks:
 
             # ── RIGHT: Chat (70%)
             with gr.Column(scale=7, min_width=400, elem_classes=["chat-column"]):
+                gr.HTML("""<div style="background:var(--warning-bg); padding:8px 16px; font-size:.85rem; color:#fcd34d; border-bottom:1px solid rgba(245,158,11,.3); text-align:center;">
+                  ⚠️ <strong>Disclaimer:</strong> This AI is for educational purposes only and draws from a curated knowledge base. It does not replace professional dental examination or treatment. Always consult a licensed dentist.
+                </div>""")
+                
                 chatbot = gr.Chatbot(
                     height=540,
                     show_label=False,
@@ -667,6 +725,11 @@ def build_ui() -> gr.Blocks:
                     submit_btn=True,
                     stop_btn=False,
                 )
+                
+                with gr.Row(elem_classes=["chat-actions"]):
+                    clear_btn = gr.Button("🗑️ Clear Chat", variant="secondary", size="sm", elem_classes=["action-btn"])
+                    export_btn = gr.Button("📄 Export as TXT", variant="secondary", size="sm", elem_classes=["action-btn"])
+                export_file = gr.File(visible=False, label="Download Chat History")
 
         # ── Wire events: submit via textbox
         msg.submit(
@@ -680,6 +743,10 @@ def build_ui() -> gr.Blocks:
             btn.click(
                 _make_chip_handler(query_text), [chatbot], [chatbot]
             )
+            
+        clear_btn.click(lambda: [], None, chatbot)
+        export_btn.click(export_chat, [chatbot], [export_file])
+        chatbot.like(handle_like, None, None)
 
     return demo
 

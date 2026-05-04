@@ -12,8 +12,29 @@ def process_query(message, history):
     if files:
         parts.append(f"📸 Received {len(files)} image(s) for analysis.\n")
     parts.append("- This is a **UI preview** with a mock backend.\n- The real RAG pipeline is not loaded.\n")
-    parts.append("> ⚠️ Always consult a licensed dentist for personal health decisions.")
+    parts.append("<details><summary>Sources</summary>\n\n- Source 1: Mock dental knowledge base context chunk 1.\n- Source 2: Mock dental knowledge base context chunk 2.\n</details>")
     return "\n".join(parts)
+
+def handle_like(data: gr.LikeData):
+    print(f"[Feedback] {'👍' if data.liked else '👎'} on message: {data.value}")
+
+def export_chat(history):
+    import tempfile
+    content = "Dental Health AI Assistant - Chat History\n"
+    content += "="*40 + "\n\n"
+    for msg in history:
+        role = "User" if msg["role"] == "user" else "Assistant"
+        text = msg["content"]
+        if isinstance(text, dict) and "path" in text:
+            text = f"[Image Attached: {text['path']}]"
+        elif isinstance(text, tuple):
+            text = f"[File Attached: {text[0]}]"
+        content += f"{role}:\n{text}\n\n"
+        content += "-"*40 + "\n\n"
+    
+    with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt", encoding="utf-8") as f:
+        f.write(content)
+        return gr.update(value=f.name, visible=True)
 
 # ─── CSS ──────────────────────────────────────────────────────────────────────
 CUSTOM_CSS = """
@@ -115,6 +136,12 @@ body, .gradio-container {
     font-weight: 600 !important; color: white !important;
     box-shadow: 0 2px 8px rgba(14,165,233,.3) !important;
 }
+.chat-actions {
+    background: var(--bg-secondary); padding: 8px 16px 16px 16px; 
+    border-bottom-left-radius: var(--radius); border-bottom-right-radius: var(--radius);
+}
+.action-btn { background: var(--bg-tertiary) !important; border: 1px solid var(--border) !important; color: var(--text-secondary) !important; font-size: 0.85rem !important; }
+.action-btn:hover { background: var(--bg-hover) !important; color: var(--text-primary) !important; border-color: var(--border-light) !important; }
 .capability-tag { display: inline-block; background: var(--bg-tertiary); border: 1px solid var(--border);
     border-radius: 20px; padding: 4px 12px; font-size: .74rem; color: var(--text-muted); margin: 3px 2px; }
 @media (max-width: 860px) { .main-row { flex-direction: column !important; } .main-row > .gr-column { min-width: 100% !important; } }
@@ -200,6 +227,9 @@ with gr.Blocks(title="Dental Health AI Assistant") as demo:
               professional dental examination or treatment. Always consult a licensed dentist.</div></div>""")
 
         with gr.Column(scale=7, min_width=400, elem_classes=["chat-column"]):
+            gr.HTML("""<div style="background:var(--warning-bg); padding:8px 16px; font-size:.85rem; color:#fcd34d; border-bottom:1px solid rgba(245,158,11,.3); text-align:center;">
+              ⚠️ <strong>Disclaimer:</strong> This AI is for educational purposes only and draws from a curated knowledge base. It does not replace professional dental examination or treatment. Always consult a licensed dentist.
+            </div>""")
             chatbot = gr.Chatbot(height=540, show_label=False, render_markdown=True,
                 elem_classes=["chat-window"],
                 placeholder="Ask a question or upload a dental image to get started…",
@@ -208,11 +238,19 @@ with gr.Blocks(title="Dental Health AI Assistant") as demo:
             msg = gr.MultimodalTextbox(placeholder="Describe your dental concern or upload an image…",
                 show_label=False, file_types=["image"], elem_classes=["chat-input"],
                 submit_btn=True, stop_btn=False)
+            with gr.Row(elem_classes=["chat-actions"]):
+                clear_btn = gr.Button("🗑️ Clear Chat", variant="secondary", size="sm", elem_classes=["action-btn"])
+                export_btn = gr.Button("📄 Export as TXT", variant="secondary", size="sm", elem_classes=["action-btn"])
+            export_file = gr.File(visible=False, label="Download Chat History")
 
     msg.submit(_add_user_message, [msg, chatbot], [chatbot, pending_msg, msg]).then(
         _generate_response, [pending_msg, chatbot], [chatbot])
     for btn, query_text in chips:
         btn.click(_make_chip_handler(query_text), [chatbot], [chatbot])
+    
+    clear_btn.click(lambda: [], None, chatbot)
+    export_btn.click(export_chat, [chatbot], [export_file])
+    chatbot.like(handle_like, None, None)
 
 print("Launching on http://127.0.0.1:7861", flush=True)
 demo.launch(server_name="127.0.0.1", server_port=7861, share=False,
