@@ -1,0 +1,50 @@
+About Periodontal (Gum) Disease | Oral Health
+Here is a comprehensive breakdown of the key information from the CDC's "About Periodontal (Gum) Disease" document that can be integrated into your RAG system's knowledge base to support dental diagnostics:
+1. Disease Progression and the Role of Tartar (Calculus) Your RAG system can use this data to explain how gum disease develops and the specific role of tartar. Bacteria in the mouth constantly produce a sticky film on the teeth called plaque
+. If plaque is left on the teeth and not removed by brushing and flossing, it hardens into tartar (calculus)
+. The system must emphasize to users that tartar buildup cannot be removed with a toothbrush and requires professional treatment
+. As tartar and bacteria build up, they can spread below the gumline, forming periodontal "pockets" that release toxins and lead to the destruction of gum tissue and bone
+.
+2. Clear Symptom Mapping for Triage To help assess user complaints, your RAG system can map inputs against the clinical signs and symptoms of gum disease outlined in the source. These include:
+Red, swollen, or tender gums
+.
+Bleeding gums
+.
+Gums that have receded (moved away or downward from the teeth)
+.
+Loose or sensitive teeth
+.
+Painful chewing
+.
+Changes in the way teeth fit together when biting, or changes in the fit of partial dentures
+.
+3. Risk Factor Assessment You can program your RAG system to ask users targeted questions about specific risk factors to better evaluate their likelihood of having periodontal issues. Important risk factors to include are:
+Smoking and tobacco use
+.
+Diabetes
+.
+Poor oral hygiene
+.
+Hormonal changes (such as pregnancy or menopause)
+.
+Stress, poor nutrition, or obesity
+.
+Genetics and underlying systemic conditions
+.
+Medications with oral side effects
+.
+Crooked teeth (malocclusion) or teeth grinding (bruxism)
+.
+4. Disease Classification (Gingivitis vs. Periodontitis) The system can use these definitions to differentiate between the stages of gum disease:
+Gingivitis: The mildest form of gum disease. It is an inflammatory condition causing red, swollen gums that may easily bleed, but it is reversible with proper oral hygiene and professional cleanings
+.
+Periodontitis: An irreversible, chronic inflammatory condition that causes bone loss and destruction of supporting tissues around the teeth
+. Untreated periodontitis is one of the leading causes of tooth loss and can worsen other chronic conditions like diabetes
+.
+5. Treatment and Prevention Pathways When users ask for solutions regarding tartar or suspected gum disease, your RAG system can recommend evidence-based clinical interventions. It should advise that:
+Prevention requires brushing twice daily, flossing every day to remove plaque, and having a dental checkup at least once a year
+.
+Professional treatment for periodontitis may involve "scaling and root planing" (deep cleaning) to remove tartar from affected teeth and root surfaces
+.
+More advanced treatments can include prescribed medications (like oral rinses or medicines placed under the gums) or surgical procedures
+.
